@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>OZON 收藏夹管家 · 管理台</title>
+<link rel="stylesheet" href="manager.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="dot"></span>
+    <div>
+      <h1>OZON 收藏夹管家</h1>
+      <p class="sub" id="subStat">正在读取收藏夹…</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button id="btnAI" class="btn btn-ai">AI 智能整理</button>
+    <button id="btnRefresh" class="btn">重新扫描</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="overview">概览</button>
+  <button class="tab" data-tab="tidy">智能整理</button>
+  <button class="tab" data-tab="dedupe">重复清理</button>
+  <button class="tab" data-tab="notes">标签备注</button>
+  <button class="tab" data-tab="rules">规则</button>
+</nav>
+
+<main>
+  <!-- 概览 -->
+  <section class="pane active" id="pane-overview">
+    <div class="cards" id="cards"></div>
+    <h2>当前目录结构</h2>
+    <div id="struct" class="struct"></div>
+
+    <h2>一键修复</h2>
+    <div id="fixPanel" class="struct"></div>
+  </section>
+
+  <!-- 智能整理 -->
+  <section class="pane" id="pane-tidy">
+    <div class="bar">
+      <div class="bar-info" id="tidyInfo">正在分析…</div>
+      <div class="bar-actions">
+        <label class="chk"><input type="checkbox" id="onlyBar"> 仅处理收藏栏顶层散落</label>
+        <button id="btnTidyExec" class="btn btn-primary">执行整理</button>
+      </div>
+    </div>
+    <div class="hint">整理只会<b>移动</b>书签，不会删除任何内容。执行前会先创建缺失的业务文件夹。</div>
+    <div id="tidyList" class="list"></div>
+  </section>
+
+  <!-- 重复清理 -->
+  <section class="pane" id="pane-dedupe">
+    <div class="bar">
+      <div class="bar-info" id="dupInfo">正在分析…</div>
+      <div class="bar-actions">
+        <button id="btnDupExec" class="btn btn-primary">合并所选</button>
+      </div>
+    </div>
+    <div class="hint">每组默认保留「路径最深 → 标题最完整 → 添加最早」的那一份，其余删除。你可以手动改保留项。</div>
+    <div id="dupList" class="list"></div>
+  </section>
+
+  <!-- 标签备注 -->
+  <section class="pane" id="pane-notes">
+    <div class="bar">
+      <div class="bar-info" id="noteInfo">—</div>
+      <div class="bar-actions">
+        <input id="noteSearch" class="input" type="text" placeholder="筛选书签…">
+      </div>
+    </div>
+    <div class="hint">备注和标签保存在本机扩展存储里，以网址为键——书签被删除后重新收藏，备注依然还在。</div>
+    <div id="noteList" class="list"></div>
+  </section>
+
+  <!-- 规则 -->
+  <section class="pane" id="pane-rules">
+    <div class="bar">
+      <div class="bar-info" id="ruleInfo">规则决定「哪个网站该进哪个文件夹」</div>
+      <div class="bar-actions">
+        <button id="btnRuleSave" class="btn btn-primary">保存规则</button>
+        <button id="btnRuleTest" class="btn">试算命中</button>
+        <button id="btnRuleReset" class="btn btn-danger">恢复默认</button>
+      </div>
+    </div>
+    <div class="hint">
+      <b>domainMap</b> 域名精确匹配（最准，优先） · <b>hostSuffixMap</b> 域名后缀（如飞书多实例） ·
+      <b>keywords</b> 关键词兜底 · <b>otherPlatforms</b> 其他平台 ·
+      <b>primarySites</b> 主站（OZON）按标题分流到店铺库/类目页
+    </div>
+    <div id="ruleMsg" class="msg" hidden></div>
+    <textarea id="ruleJson" spellcheck="false"></textarea>
+  </section>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+<div id="mask" class="mask" hidden><div class="spin">处理中…</div></div>
+
+<!-- 预览垫片：在真实扩展环境中检测到 chrome.bookmarks 会立即返回，不做任何干预 -->
+<script src="dev/mock-data.js"></script>
+<script src="dev/mock-chrome.js"></script>
+<script type="module" src="manager.js"></script>
+</body>
+</html>

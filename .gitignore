@@ -1,0 +1,44 @@
+# ---- 真实数据 / 隐私：绝不入库 ----
+Bookmarks
+Bookmarks.*
+*.manualbak
+backup/
+logs/
+mock-data.js
+tree.json
+unique.json
+tree_full.txt
+*_report.txt
+*_result.txt
+*_out.txt
+final_state.txt
+title_audit.txt
+live_verify.txt
+sync_check.txt
+sync_state.txt
+stability.txt
+skill_test.txt
+
+# ---- 构建产物 ----
+dist/
+*.zip
+!releases/*.zip
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# ---- Node ----
+node_modules/
+package-lock.json
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp

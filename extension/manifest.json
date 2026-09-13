@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "收藏夹管家 · AI 智能整理",
+  "version": "1.1.0",
+  "description": "用你自己的大模型整理浏览器收藏夹：自动分析现有书签，归纳出贴合你业务的分类体系并一键归位。也可以纯本地规则离线使用。",
+  "permissions": ["bookmarks", "storage", "favicon"],
+  "host_permissions": [
+    "https://api.deepseek.com/*",
+    "https://api.openai.com/*",
+    "https://api.moonshot.cn/*",
+    "https://dashscope.aliyuncs.com/*",
+    "https://open.bigmodel.cn/*",
+    "https://api.siliconflow.cn/*",
+    "https://openrouter.ai/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "收藏夹管家"
+  },
+  "options_page": "manager.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

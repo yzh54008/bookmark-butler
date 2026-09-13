@@ -1,0 +1,147 @@
+* { box-sizing: border-box; }
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f6f7f9;
+  --bg-hover: #eef1f5;
+  --line: rgba(0, 0, 0, 0.10);
+  --line-strong: rgba(0, 0, 0, 0.18);
+  --t1: #1f2328;
+  --t2: #5f6b7a;
+  --t3: #8b95a3;
+  --accent: #0f6e56;
+  --accent-soft: #e1f5ee;
+  --warn: #854f0b;
+  --warn-soft: #faeeda;
+  --danger: #a32d2d;
+}
+
+body {
+  width: 430px;
+  height: 560px;
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  color: var(--t1);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.hd-title { display: flex; align-items: center; gap: 7px; }
+.hd-title strong { font-size: 13px; font-weight: 500; }
+
+.dot {
+  width: 14px; height: 14px; border-radius: 4px;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.hd-stat { font-size: 11px; color: var(--t3); }
+
+.search-wrap { position: relative; padding: 10px 12px 8px; flex-shrink: 0; }
+
+#q {
+  width: 100%;
+  height: 34px;
+  padding: 0 30px 0 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--t1);
+  background: var(--bg-soft);
+  outline: none;
+}
+#q:focus { border-color: var(--accent); background: var(--bg); }
+
+.clear-q {
+  position: absolute; right: 20px; top: 17px;
+  width: 20px; height: 20px; border: 0; border-radius: 50%;
+  background: var(--line); color: var(--t2);
+  font-size: 14px; line-height: 1; cursor: pointer; padding: 0;
+}
+
+.filters { display: flex; gap: 6px; padding: 0 12px 8px; flex-shrink: 0; }
+
+.chip {
+  height: 24px; padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--bg); color: var(--t2);
+  font-size: 12px; font-family: inherit; cursor: pointer;
+}
+.chip:hover { background: var(--bg-hover); }
+.chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.list { flex: 1; overflow-y: auto; padding: 0 6px 6px; }
+
+.row {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.row:hover, .row.sel { background: var(--bg-hover); }
+
+.fav {
+  width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;
+  border-radius: 3px; object-fit: contain;
+}
+
+.fav-fb {
+  width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;
+  border-radius: 3px; background: var(--accent-soft); color: var(--accent);
+  font-size: 9px; font-weight: 500; display: flex; align-items: center; justify-content: center;
+}
+
+.row-main { flex: 1; min-width: 0; }
+.row-t { font-size: 13px; line-height: 1.4; word-break: break-all; }
+.row-t mark { background: #fff3bf; color: inherit; padding: 0 1px; border-radius: 2px; }
+.row-m { font-size: 11px; color: var(--t3); margin-top: 2px; line-height: 1.35; word-break: break-all; }
+
+.tags { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
+.tag {
+  font-size: 10px; padding: 1px 6px; border-radius: 9px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.tag.note { background: var(--warn-soft); color: var(--warn); }
+
+.path { color: var(--t3); }
+
+.empty { padding: 34px 16px; text-align: center; color: var(--t3); font-size: 12px; line-height: 1.7; }
+
+.ft {
+  display: flex; gap: 8px; padding: 9px 12px;
+  border-top: 1px solid var(--line); flex-shrink: 0;
+}
+
+.btn {
+  flex: 1; height: 32px;
+  border: 1px solid var(--line-strong); border-radius: 7px;
+  background: var(--bg); color: var(--t1);
+  font-size: 12px; font-family: inherit; cursor: pointer;
+}
+.btn:hover { background: var(--bg-hover); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: #0c5a46; }
+/* AI 入口：主行动按钮 */
+.btn-ai { background: var(--accent); border-color: var(--accent); color: #fff; flex: 1.35; font-weight: 500; }
+.btn-ai:hover { background: #0c5a46; }
+
+.toast {
+  position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%);
+  background: #2c2c2a; color: #fff;
+  padding: 7px 14px; border-radius: 7px; font-size: 12px;
+  max-width: 340px; text-align: center; z-index: 99;
+}

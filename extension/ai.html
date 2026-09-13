@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI 智能整理 · 收藏夹管家</title>
+<link rel="stylesheet" href="ai.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="dot"></span>
+    <div>
+      <h1>AI 智能整理</h1>
+      <p class="sub" id="subStat">正在读取收藏夹…</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span class="chip" id="connChip">未配置模型</span>
+    <button id="btnRefresh" class="btn">重新扫描</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="wizard">整理向导</button>
+  <button class="tab" data-tab="settings">模型配置</button>
+  <button class="tab" data-tab="help">使用说明</button>
+</nav>
+
+<main>
+  <!-- ================= 整理向导 ================= -->
+  <section class="pane active" id="pane-wizard">
+
+    <!-- 步骤条 -->
+    <div class="steps" id="steps">
+      <div class="step active" data-s="1"><i>1</i><span>确认模型</span></div>
+      <div class="step" data-s="2"><i>2</i><span>扫描与隐私</span></div>
+      <div class="step" data-s="3"><i>3</i><span>生成方案</span></div>
+      <div class="step" data-s="4"><i>4</i><span>预览与执行</span></div>
+    </div>
+
+    <!-- 1 确认模型 -->
+    <div class="card" id="s1">
+      <h2>第一步 · 确认模型可用</h2>
+      <div id="connBox" class="connbox"></div>
+      <div class="row">
+        <button id="btnTest" class="btn btn-primary">测试连接</button>
+        <button id="btnGoSettings" class="btn">去配置模型</button>
+        <button id="btnNext1" class="btn btn-ghost">下一步</button>
+      </div>
+      <div id="testMsg" class="msg" hidden></div>
+      <div class="hint">
+        插件不会内置任何人的密钥。API Key 只存在你本机浏览器的扩展存储里（<code>chrome.storage.local</code>），
+        不会被上传到任何地方；请求由你的浏览器直接发往你填的那个模型服务商。
+      </div>
+    </div>
+
+    <!-- 2 扫描与隐私 -->
+    <div class="card" id="s2" hidden>
+      <h2>第二步 · 扫描书签，确认要发出去什么</h2>
+      <div class="cards" id="scanCards"></div>
+
+      <div class="field">
+        <label>业务背景（可选，但强烈建议填）</label>
+        <textarea id="bizCtx" rows="2" placeholder="例：我做跨境电商，主要平台是 OZON，也看 1688 找货源；日常用 AI 工具和 ERP。"></textarea>
+        <div class="hint" style="margin-top:4px">写清楚你在做什么，模型给出的目录体系会贴合得多。</div>
+      </div>
+
+      <div class="opts">
+        <label class="chk"><input type="checkbox" id="optKeepTops"> 尽量沿用我现有的顶层目录名</label>
+        <label class="chk"><input type="checkbox" id="optFullUrl"> 把完整 URL 也发给模型</label>
+        <label class="chk"><input type="checkbox" id="optSplit" checked> 对「一个网站多种用途」自动逐条细判</label>
+      </div>
+
+      <div class="msg msg-warn">
+        <b>隐私提示：</b>默认只发送<b>域名 + 标题</b>（不含完整网址、不含账号信息）。
+        勾选「完整 URL」会连同路径与查询参数一起发送——若你的链接里带 token 或订单号，建议保持不勾。
+        追求极致隐私可把服务商换成<b>本地 Ollama</b>，数据完全不出本机。
+      </div>
+
+      <details class="details">
+        <summary>查看将发送的摘要内容（共 <span id="digestCount">0</span> 个域名）</summary>
+        <pre id="digestPreview" class="preview"></pre>
+      </details>
+
+      <div class="row">
+        <button id="btnPrev2" class="btn btn-ghost">上一步</button>
+        <button id="btnRun" class="btn btn-primary">开始生成方案</button>
+        <span class="cost" id="costEst"></span>
+      </div>
+    </div>
+
+    <!-- 3 生成方案 -->
+    <div class="card" id="s3" hidden>
+      <h2>第三步 · 正在生成方案</h2>
+      <div class="prog">
+        <div class="prog-bar"><i id="progFill"></i></div>
+        <div class="prog-text" id="progText">准备中…</div>
+      </div>
+      <ul class="log" id="runLog"></ul>
+      <div class="row">
+        <button id="btnCancel" class="btn btn-danger">取消</button>
+      </div>
+      <div id="runErr" class="msg msg-err" hidden></div>
+    </div>
+
+    <!-- 4 预览与执行 -->
+    <div class="card" id="s4" hidden>
+      <h2>第四步 · 预览方案并执行</h2>
+      <div class="cards" id="planCards"></div>
+
+      <div class="tax" id="taxBox"></div>
+
+      <div class="bar">
+        <div class="bar-info" id="planInfo">—</div>
+        <div class="bar-actions">
+          <button id="btnToggleAll" class="btn">全选/全不选</button>
+          <button id="btnApply" class="btn btn-primary">执行整理（只移动，不删除）</button>
+        </div>
+      </div>
+      <div id="planList" class="list"></div>
+
+      <div class="row" id="undoRow" hidden>
+        <button id="btnUndo" class="btn btn-danger">撤销本次整理</button>
+        <span class="cost" id="undoInfo"></span>
+      </div>
+      <div class="row">
+        <button id="btnRestart" class="btn btn-ghost">重新开始</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 模型配置 ================= -->
+  <section class="pane" id="pane-settings">
+    <div class="card">
+      <h2>服务商</h2>
+      <div class="field">
+        <label>选择服务商</label>
+        <select id="provider"></select>
+        <div class="hint" id="provNote" style="margin-top:6px"></div>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label>Base URL</label>
+          <input id="baseUrl" type="text" spellcheck="false" placeholder="https://api.deepseek.com/v1">
+          <div class="hint" style="margin-top:4px">要以 <code>/v1</code> 结尾；本地 Ollama 用 <code>http://127.0.0.1:11434/v1</code></div>
+        </div>
+        <div class="field">
+          <label>模型名</label>
+          <input id="model" type="text" spellcheck="false" list="modelList" placeholder="deepseek-chat">
+          <datalist id="modelList"></datalist>
+          <div class="hint" style="margin-top:4px" id="modelHint"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>API Key</label>
+        <div class="keyrow">
+          <input id="apiKey" type="password" spellcheck="false" autocomplete="off" placeholder="粘贴你自己的 Key">
+          <button id="btnEye" class="btn btn-mini" type="button">显示</button>
+          <button id="btnClearKey" class="btn btn-mini btn-danger" type="button">清除</button>
+        </div>
+        <div class="hint" style="margin-top:4px" id="keyHint"></div>
+        <div class="hint" id="keyLink" style="margin-top:2px"></div>
+      </div>
+
+      <div class="row">
+        <button id="btnSave" class="btn btn-primary">保存配置</button>
+        <button id="btnTest2" class="btn">测试连接</button>
+        <a id="btnLink" class="btn btn-ghost" target="_blank" rel="noopener" hidden>去申请密钥</a>
+      </div>
+      <div id="saveMsg" class="msg" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2>高级参数</h2>
+      <div class="grid3">
+        <div class="field">
+          <label>温度 (0~1)</label>
+          <input id="temperature" type="number" min="0" max="1" step="0.1">
+        </div>
+        <div class="field">
+          <label>最大输出 token</label>
+          <input id="maxTokens" type="number" min="512" step="256">
+        </div>
+        <div class="field">
+          <label>并发请求数</label>
+          <input id="concurrency" type="number" min="1" max="4">
+        </div>
+        <div class="field">
+          <label>每批书签条数</label>
+          <input id="batchSize" type="number" min="10" max="80">
+        </div>
+        <div class="field">
+          <label>每批域名数</label>
+          <input id="hostBatchSize" type="number" min="20" max="120">
+        </div>
+        <div class="field">
+          <label>目录命名语言</label>
+          <select id="language">
+            <option value="zh">简体中文</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+      <label class="chk"><input type="checkbox" id="useLocalRulesFallback" checked> 模型失败时回退到本地规则引擎</label>
+      <div class="hint">并发数调高会更快，但更容易触发服务商限流；遇到 429 就调到 1。</div>
+    </div>
+
+    <div class="card">
+      <h2>用量记录</h2>
+      <div id="histBox" class="list tiny"></div>
+      <button id="btnClearHist" class="btn btn-mini">清空记录</button>
+    </div>
+  </section>
+
+  <!-- ================= 使用说明 ================= -->
+  <section class="pane" id="pane-help">
+    <div class="card">
+      <h2>这个插件是怎么「聪明」起来的</h2>
+      <p>它不会内置一套写死的分类，而是把你的书签<b>按域名聚合</b>成一份摘要，交给你自己配置的大模型，让模型归纳出<b>贴合你的</b>目录体系，再逐层分派。三阶段：</p>
+      <ol class="ol">
+        <li><b>归纳体系</b>：模型只看聚合摘要（域名 + 条数 + 标题样本），产出 6~14 个一级目录及子目录。</li>
+        <li><b>域名分派</b>：把每个域名指到一条路径上。几百条书签通常只有一百来个域名，这一步决定了整体质量。</li>
+        <li><b>逐条细判</b>：只对「一个网站多种用途」的情况（比如同一个站点既有卖家后台又有商品类目页）才逐条判断。</li>
+      </ol>
+      <p>最后一步还有兜底：模型没覆盖到的，交给本地规则引擎；两者都定不了的，进 <code>99 · 待整理</code>，<b>绝不乱放</b>。</p>
+    </div>
+
+    <div class="card">
+      <h2>把插件分享给朋友</h2>
+      <ol class="ol">
+        <li>把插件文件夹打包（<b>不要</b>把 <code>dev/</code> 目录一起给出，那里面可能含有你的真实书签样例）。</li>
+        <li>对方解压后，打开 <code>edge://extensions</code>（Chrome 是 <code>chrome://extensions</code>）。</li>
+        <li>打开右下角的<b>开发者模式</b>，点<b>加载解压缩的扩展</b>，选择解压出来的文件夹。</li>
+        <li>点插件图标 → 打开 <b>AI 智能整理</b> → <b>模型配置</b> → 填对方自己的 API Key → 保存。</li>
+        <li>回到「整理向导」，一路点下去即可。</li>
+      </ol>
+      <div class="msg msg-warn">对方的 Key 只存在对方电脑上。你不需要、也不应该把自己的 Key 给别人。</div>
+    </div>
+
+    <div class="card">
+      <h2>安全边界（请确认你接受）</h2>
+      <ul class="ol">
+        <li>整理过程<b>只移动书签，从不删除</b>。用错了随时点「撤销本次整理」。</li>
+        <li>默认只把<b>域名和标题</b>发给模型；不发送书签里没有的东西，也不读取浏览历史、Cookie、密码。</li>
+        <li>API Key 存在 <code>chrome.storage.local</code>，不参与浏览器账号同步，不会随账号上传云端。</li>
+        <li>插件除了<b>你自己配置的那个模型端点</b>之外，不向任何服务器发送数据。</li>
+        <li>插件申请的权限：<code>bookmarks</code>（读写收藏夹）、<code>storage</code>（存配置与备注）、
+            以及对模型端点的访问权限（首次配置自定义端点时会弹窗询问）。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>常见问题</h2>
+      <dl class="faq">
+        <dt>提示「鉴权失败 401」</dt>
+        <dd>Key 不对、已过期，或复制时带了空格。重新粘贴一次；有些服务商需要先在后台开通对应模型。</dd>
+        <dt>提示「接口或模型不存在 404」</dt>
+        <dd>Base URL 没填对。多数服务商要写到 <code>/v1</code>（通义千问必须用「兼容模式」的地址）。</dd>
+        <dt>提示「触发限流 429」</dt>
+        <dd>把「并发请求数」改成 1，或把「每批域名数」调小，稍后重试。</dd>
+        <dt>整理出来的目录不满意</dt>
+        <dd>先在「业务背景」里把自己的工作写具体，再重新生成。也可以点「尽量沿用我现有的顶层目录名」。</dd>
+        <dt>不想花钱 / 不想把数据发出去</dt>
+        <dd>用本地的 Ollama：装好 Ollama、<code>ollama pull qwen2.5:7b</code>，服务商选「本地 Ollama」即可，数据不出本机。</dd>
+        <dt>整理完想还原</dt>
+        <dd>页面底部有「撤销本次整理」，可恢复到移动之前的状态（含清理掉本次新建的空目录）。</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+<div id="mask" class="mask" hidden><div class="spin">处理中…</div></div>
+
+<!-- 预览垫片：真实扩展环境里 chrome.* 存在，这两个脚本会立即返回，不做任何干预 -->
+<script src="dev/mock-data.js"></script>
+<script src="dev/mock-chrome.js"></script>
+<script type="module" src="ai.js"></script>
+</body>
+</html>
